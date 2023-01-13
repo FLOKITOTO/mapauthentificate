@@ -7,8 +7,12 @@ import * as Google from "expo-auth-session/providers/google";
 WebBrowser.maybeCompleteAuthSession();
 
 const Login = () => {
-  const [accessToken, setAccessToken] = useState(null);
-  const [user, setUser] = useState(null);
+  const [auth, setAuth] = useState({
+    isLoggedIn: false,
+    accessToken: null,
+    user: null,
+  });
+
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "1062703903300-g9berao3p6nk6mqk9g0b72patvka83kk.apps.googleusercontent.com",
@@ -20,26 +24,59 @@ const Login = () => {
 
   useEffect(() => {
     if (response?.type === "success") {
-      setAccessToken(response.authentication.accessToken);
-      accessToken && fetchUserInformations();
+      setAuth({
+        isLoggedIn: true,
+        accessToken: response.authentication.accessToken,
+        user: null,
+      });
+      fetchUserInformations();
     }
-  }, [response, accessToken]);
+  }, [response]);
 
   async function fetchUserInformations() {
     let response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${auth.accessToken}` },
     });
     const useInfo = await response.json();
-    setUser(useInfo);
+    setAuth((prevState) => {
+      return { ...prevState, user: useInfo };
+    });
   }
 
   const ShowUserInfo = () => {
-    if (user) {
+    if (auth.user) {
       return (
         <View style={styles.container}>
-          <Text style={styles.text}>Welcome</Text>
-          <Image source={{ uri: user.picture }} style={styles.picture}></Image>
-          <Text style={styles.subText}>{user.name}</Text>
+          {auth.isLoggedIn && (
+            <View>
+              <Text style={styles.text}>Welcome</Text>
+              <Image
+                source={{ uri: auth.user.picture }}
+                style={styles.picture}
+              ></Image>
+              <Text style={styles.subText}>{auth.user.name}</Text>
+            </View>
+          )}
+          {!auth.isLoggedIn && (
+            <>
+              <View>
+                <Text style={styles.text}>Welcome</Text>
+                <Text style={styles.subText}>Please Login</Text>
+                <TouchableOpacity
+                  disabled={!request}
+                  onPress={() => {
+                    promptAsync();
+                  }}
+                >
+                  {" "}
+                  <Image
+                    source={require("../../assets/favicon.png")}
+                    style={styles.picture}
+                  />
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
       );
     }
@@ -48,8 +85,8 @@ const Login = () => {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      {user && <ShowUserInfo />}
-      {user === null && (
+      {auth.user && <ShowUserInfo />}
+      {auth.user === null && (
         <>
           <View>
             <Text style={styles.text}>Welcome</Text>
