@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
+import { useNavigation } from "@react-navigation/native";
 
 WebBrowser.maybeCompleteAuthSession();
 
 const Login = () => {
+  const navigation = useNavigation();
+
   const [auth, setAuth] = useState({
     isLoggedIn: false,
     accessToken: null,
     user: null,
   });
-
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "1062703903300-g9berao3p6nk6mqk9g0b72patvka83kk.apps.googleusercontent.com",
@@ -30,6 +39,7 @@ const Login = () => {
         user: null,
       });
       fetchUserInformations();
+      navigation.navigate("Home");
     }
   }, [response]);
 
