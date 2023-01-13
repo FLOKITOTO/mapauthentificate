@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "com.flokitoto.mapauthentificate",
     "name": "mapauthentificate",
     "slug": "mapauthentificate",
     "version": "1.0.0",
@@ -21,13 +22,22 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.flokitoto.mapauthentificate",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "bundleIdentifier": [
+        "com.flokitoto.mapauthentificate"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fdd06b72-bc89-4932-bc74-9286fc3d623f"
+      }
     }
   }
 }
