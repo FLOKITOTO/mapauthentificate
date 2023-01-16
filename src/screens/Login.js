@@ -1,130 +1,90 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
-  Image,
+  Text,
+  StyleSheet,
+  Modal,
   TouchableOpacity,
   Button,
 } from "react-native";
+import GoogleAuth from "./GoogleAuth";
+import FacebookAuth from "./FacebookAuth";
 import { StatusBar } from "expo-status-bar";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
-import { useNavigation } from "@react-navigation/native";
-
-WebBrowser.maybeCompleteAuthSession();
+import { Ionicons } from "@expo/vector-icons";
 
 const Login = () => {
-  const navigation = useNavigation();
-
-  const [auth, setAuth] = useState({
-    isLoggedIn: false,
-    accessToken: null,
-    user: null,
-  });
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId:
-      "1062703903300-g9berao3p6nk6mqk9g0b72patvka83kk.apps.googleusercontent.com",
-    iosClientId:
-      "1062703903300-s2krt7ehujr2acev0aol9pt7pihftegf.apps.googleusercontent.com",
-    androidClientId:
-      "1062703903300-ejsdg7die21apfn2oh4jst7sid260c1v.apps.googleusercontent.com",
-  });
-
-  useEffect(() => {
-    if (response?.type === "success") {
-      setAuth({
-        isLoggedIn: true,
-        accessToken: response.authentication.accessToken,
-        user: null,
-      });
-      fetchUserInformations();
-      navigation.navigate("Home");
-    }
-  }, [response]);
-
-  async function fetchUserInformations() {
-    let response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-      headers: { Authorization: `Bearer ${auth.accessToken}` },
-    });
-    const useInfo = await response.json();
-    setAuth((prevState) => {
-      return { ...prevState, user: useInfo };
-    });
-  }
-
-  const ShowUserInfo = () => {
-    if (auth.user) {
-      return (
-        <View style={styles.container}>
-          {auth.isLoggedIn && (
-            <View>
-              <Text style={styles.text}>Welcome</Text>
-              <Image
-                source={{ uri: auth.user.picture }}
-                style={styles.picture}
-              ></Image>
-              <Text style={styles.subText}>{auth.user.name}</Text>
-            </View>
-          )}
-          {!auth.isLoggedIn && (
-            <>
-              <View>
-                <Text style={styles.text}>Welcome</Text>
-                <Text style={styles.subText}>Please Login</Text>
-                <TouchableOpacity
-                  disabled={!request}
-                  onPress={() => {
-                    promptAsync();
-                  }}
-                >
-                  {" "}
-                  <Image
-                    source={require("../../assets/favicon.png")}
-                    style={styles.picture}
-                  />
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-        </View>
-      );
-    }
-  };
+  const [selectedAuth, setSelectedAuth] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      {auth.user && <ShowUserInfo />}
-      {auth.user === null && (
-        <>
-          <View>
-            <Text style={styles.text}>Welcome</Text>
-            <Text style={styles.subText}>Please Login</Text>
-            <TouchableOpacity
-              disabled={!request}
-              onPress={() => {
-                promptAsync();
-              }}
-            >
-              <Image
-                source={require("../../assets/favicon.png")}
-                style={styles.image}
-              ></Image>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
+      <View>
+        <Text style={styles.Title}>MapAuth Project</Text>
+      </View>
+      <View>
+        <Text style={styles.text}>Please login</Text>
+        <Text
+          style={styles.subText}
+          onPress={() => {
+            setSelectedAuth("google");
+            setIsModalOpen(true);
+          }}
+        >
+          Google
+        </Text>
+        <Text
+          style={styles.subText}
+          onPress={() => {
+            setSelectedAuth("facebook");
+            setIsModalOpen(true);
+          }}
+        >
+          Facebook
+        </Text>
+      </View>
+      <Modal visible={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
+        {selectedAuth === "google" && (
+          <GoogleAuth closeModal={() => setIsModalOpen(false)} />
+        )}
+        {selectedAuth === "facebook" && (
+          <FacebookAuth closeModal={() => setIsModalOpen(false)} />
+        )}
+
+        <View
+          style={{
+            height: 200,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setIsModalOpen(false)}
+            style={styles.button}
+          >
+            <Text>Retour</Text>
+            <Ionicons name="md-arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
 
+export default Login;
+
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#f1f1f1",
+    borderRadius: 5,
+    padding: 10,
+  },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
+
   text: {
     fontSize: 35,
     fontWeight: "bold",
@@ -134,7 +94,7 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 9,
   },
   picture: {
     width: 50,
@@ -142,5 +102,3 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
 });
-
-export default Login;

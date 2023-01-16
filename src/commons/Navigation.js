@@ -1,41 +1,9 @@
-// import React, { useState } from "react";
-// import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// // import { NavigationContainer } from "@react-navigation/native";
-// // import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-// import Login from "../screens/Login";
-// import Home from "../screens/Home";
-
-// const Stack = createNativeStackNavigator();
-
-// const stackNavigator = () => {
-//   return (
-//     <Stack.Navigator
-//       initialRouteName="Login"
-//       screenOptions={{ headerShown: true }}
-//     >
-//       <Stack.Group>
-//         <Stack.Screen name="Login" component={Login} />
-//         <Stack.Screen
-//           name="Home"
-//           component={Home}
-//           options={{
-//             gestureEnabled: false,
-//             headerShown: false,
-//             headerLeft: () => <></>,
-//           }}
-//         />
-//       </Stack.Group>
-//     </Stack.Navigator>
-//   );
-// };
-
-// export default stackNavigator;
-
 import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "../screens/Login";
 import Home from "../screens/Home";
+import Settings from "../screens/Settings";
 import Planisphere from "../screens/Planisphere ";
 
 const Tab = createBottomTabNavigator();
@@ -52,6 +20,15 @@ const MapTab = () => {
         }}
         name="Planisphere"
         component={Planisphere}
+      />
+      <Tab.Screen
+        options={{
+          gestureEnabled: false,
+          headerShown: true,
+          headerLeft: () => <></>,
+        }}
+        name="Settings"
+        component={Settings}
       />
     </Tab.Navigator>
   );

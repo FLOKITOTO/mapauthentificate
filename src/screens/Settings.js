@@ -1,24 +1,16 @@
 import React, { useEffect } from "react";
-import { StyleSheet, Text, View, Image, Button } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 
-const Home = ({ route, navigation }) => {
+const Home = ({ navigation }) => {
   navigation = useNavigation();
-  const { user } = route.params;
-  useEffect(() => {
-    return () => {
-      console.log("User logged in", user);
-    };
-  }, []);
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
 
-      <Text style={styles.text}>successfully connected</Text>
-      <Text style={styles.text}>Welcome to Home, {user.name}</Text>
-      <Image source={{ uri: user.picture }} style={styles.picture}></Image>
+      <Text style={styles.text}>settings </Text>
       <Button
         title="go to map"
         onPress={() => {
