@@ -4,9 +4,6 @@ import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 
-const [location, setLocation] = useState(null);
-const [permissionGranted, setPermissionGranted] = useState(false);
-
 const Planisphere = ({ navigation }) => {
   navigation = useNavigation();
   const [location, setLocation] = useState(null);
