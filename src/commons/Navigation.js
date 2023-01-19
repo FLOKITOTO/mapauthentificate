@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "../screens/Login";
 import Home from "../screens/Home";
+import Settings from "../screens/Settings";
 import Planisphere from "../screens/Planisphere ";
 
 const Tab = createBottomTabNavigator();
@@ -53,7 +54,7 @@ const Navigation = () => {
           headerLeft: () => <></>,
         }}
         name="Planisphere"
-        component={Planisphere}
+        component={MapTab}
       />
     </Stack.Navigator>
   );

@@ -7,23 +7,23 @@ import * as Location from "expo-location";
 const Planisphere = ({ navigation }) => {
   navigation = useNavigation();
   const [location, setLocation] = useState(null);
-  const [isMapVisible, setIsMapVisible] = useState(false);
+  // const [isMapVisible, setIsMapVisible] = useState(false);
 
-  const getLocation = async () => {
-    const { status } = await Location.requestPermissionsAsync();
+  // const getLocation = async () => {
+  //   const { status } = await Location.requestPermissionsAsync();
 
-    if (status === "granted") {
-      const location = await Location.getCurrentPositionAsync({});
-      setPermissionGranted(true);
-      setLocation(location);
-    }
-  };
+  //   if (status === "granted") {
+  //     const location = await Location.getCurrentPositionAsync({});
+  //     setPermissionGranted(true);
+  //     setLocation(location);
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <Text style={styles.text}>MapTab</Text>
-      {!permissionGranted && (
+      {/* {!permissionGranted && (
         <Button title="Get Location" onPress={getLocation} />
       )}
       {permissionGranted && location && (
@@ -36,7 +36,7 @@ const Planisphere = ({ navigation }) => {
             longitudeDelta: 0.0421,
           }}
         />
-      )}
+      )} */}
     </View>
   );
 };
