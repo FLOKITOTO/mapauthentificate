@@ -15,11 +15,11 @@ import { useNavigation } from "@react-navigation/native";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const fakeUser = {
-  name: "John Doe",
-  picture:
-    "https://cdn.discordapp.com/attachments/483349134661779476/1064226792325533716/Compressed.png",
-};
+// const fakeUser = {
+//   name: "John Doe",
+//   picture:
+//     "https://cdn.discordapp.com/attachments/483349134661779476/1064226792325533716/Compressed.png",
+// };
 
 const GoogleAuth = ({ navigation }) => {
   navigation = useNavigation();
