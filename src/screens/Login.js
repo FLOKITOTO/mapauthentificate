@@ -11,11 +11,10 @@ import GoogleAuth from "./GoogleAuth";
 import FacebookAuth from "./FacebookAuth";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-const Login = () => {
-  const [selectedAuth, setSelectedAuth] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+const Login = ({ navigation }) => {
+  navigation = useNavigation();
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -27,46 +26,13 @@ const Login = () => {
         <Text
           style={styles.subText}
           onPress={() => {
-            setSelectedAuth("google");
-            setIsModalOpen(true);
+            navigation.navigate("GoogleAuth");
           }}
         >
           Google
         </Text>
-        <Text
-          style={styles.subText}
-          onPress={() => {
-            setSelectedAuth("facebook");
-            setIsModalOpen(true);
-          }}
-        >
-          Facebook
-        </Text>
+        <FacebookAuth />
       </View>
-      <Modal visible={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
-        {selectedAuth === "google" && (
-          <GoogleAuth closeModal={() => setIsModalOpen(false)} />
-        )}
-        {selectedAuth === "facebook" && (
-          <FacebookAuth closeModal={() => setIsModalOpen(false)} />
-        )}
-
-        <View
-          style={{
-            height: 200,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setIsModalOpen(false)}
-            style={styles.button}
-          >
-            <Text>Retour</Text>
-            <Ionicons name="md-arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </Modal>
     </View>
   );
 };

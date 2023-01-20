@@ -9,8 +9,7 @@ const Home = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-
-      <Text style={styles.text}>settings </Text>
+      <Text style={styles.text}>settings</Text>
       <Button
         title="go to map"
         onPress={() => {

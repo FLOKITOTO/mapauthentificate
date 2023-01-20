@@ -12,14 +12,15 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { SvgUri } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
-
+import { Ionicons } from "@expo/vector-icons";
+// import { addUser } from "../commons/firebaseConfig";
 WebBrowser.maybeCompleteAuthSession();
 
-// const fakeUser = {
-//   name: "John Doe",
-//   picture:
-//     "https://cdn.discordapp.com/attachments/483349134661779476/1064226792325533716/Compressed.png",
-// };
+const fakeUser = {
+  name: "John Doe",
+  picture:
+    "https://cdn.discordapp.com/attachments/483349134661779476/1064226792325533716/Compressed.png",
+};
 
 const GoogleAuth = ({ navigation }) => {
   navigation = useNavigation();
@@ -38,6 +39,7 @@ const GoogleAuth = ({ navigation }) => {
     if (response?.type === "success") {
       setAccessToken(response.authentication.accessToken);
       accessToken && fetchUserInformations();
+      // addUser(user);
     }
   }, [response, accessToken]);
 
@@ -47,6 +49,9 @@ const GoogleAuth = ({ navigation }) => {
     });
     const useInfo = await response.json();
     setUser(useInfo);
+    // console.log(addUser(useInfo));
+    // addUser(useInfo);
+    // console.log("addUser", addUser(useInfo));
   }
 
   const ShowUserInfo = () => {
@@ -61,15 +66,11 @@ const GoogleAuth = ({ navigation }) => {
             disabled={!request}
             title="Acceder au tableau de bord"
             onPress={() => {
-              navigation.navigate("Home", { user: fakeUser });
-            }}
-          />
-          <Button
-            disabled={!request}
-            title="Signout"
-            onPress={() => {
-              navigation.navigate("Login");
-              setUser(null);
+              navigation.navigate("MapTab", {
+                screen: "Home",
+                params: { user: user },
+              });
+              // console.log("addUser", addUser(...user));
             }}
           />
         </View>
