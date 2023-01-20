@@ -13,7 +13,6 @@ import * as Google from "expo-auth-session/providers/google";
 import { SvgUri } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-// import { addUser } from "../commons/firebaseConfig";
 WebBrowser.maybeCompleteAuthSession();
 
 const fakeUser = {

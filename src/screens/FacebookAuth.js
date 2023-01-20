@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Facebook from "expo-auth-session/providers/facebook";
-import { Button } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { auth } from "../commons/firebaseConfig";
 import { FacebookAuthProvider, signInWithCredential } from "firebase/auth";
 import { ResponseType } from "expo-auth-session";
@@ -24,10 +24,19 @@ export default function FacebookAuth() {
   }, [response]);
 
   return (
-    <Button
-      title="Sign In with Facebook"
+    <Text
+      style={styles.subText}
       disabled={!request}
       onPress={() => promptAsync()}
-    />
+    >
+      Facebook
+    </Text>
   );
 }
+const styles = StyleSheet.create({
+  subText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 9,
+  },
+});
