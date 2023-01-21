@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 20,
     fontWeight: "bold",
+    color: "grey",
     marginBottom: 9,
   },
 });

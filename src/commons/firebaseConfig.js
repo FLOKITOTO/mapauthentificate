@@ -1,16 +1,25 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { USERS_COLLECTION } from "../commons/contants";
+import {
+  API_KEY,
+  APP_ID,
+  AUTH_DOMAIN,
+  MEASUREMENT_ID,
+  MESSAGING_SENDER_ID,
+  PROJECT_ID,
+  STORAGE_BUCKET,
+  USERS_COLLECTION,
+} from "../commons/contants";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvU-VfngeIE_j1dmGxKJBnDZOo_eOd5-E",
-  authDomain: "mapauth-37afa.firebaseapp.com",
-  projectId: "mapauth-37afa",
-  storageBucket: "mapauth-37afa.appspot.com",
-  messagingSenderId: "799196939798",
-  appId: "1:799196939798:web:330f03355b4a10e474d737",
-  measurementId: "G-QSCBYQ8TQ6",
+  apiKey: API_KEY,
+  authDomain: AUTH_DOMAIN,
+  projectId: PROJECT_ID,
+  storageBucket: STORAGE_BUCKET,
+  messagingSenderId: MESSAGING_SENDER_ID,
+  appId: APP_ID,
+  measurementId: MEASUREMENT_ID,
 };
 
 // Initialize Firebase

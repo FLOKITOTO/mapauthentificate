@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,7 @@ import * as Google from "expo-auth-session/providers/google";
 import { SvgUri } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+
 WebBrowser.maybeCompleteAuthSession();
 
 const fakeUser = {
@@ -33,6 +34,8 @@ const GoogleAuth = ({ navigation }) => {
     androidClientId:
       "1062703903300-ejsdg7die21apfn2oh4jst7sid260c1v.apps.googleusercontent.com",
   });
+
+  // const { setUser, user } = useContext(UserContext);
 
   useEffect(() => {
     if (response?.type === "success") {
