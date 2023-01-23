@@ -1,11 +1,13 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const Home = ({ route, navigation }) => {
+  // const Home = ({ navigation }) => {
   navigation = useNavigation();
   const { user } = route.params;
+  // const { user } = useContext(UserContext);
 
   useEffect(() => {
     return () => {
@@ -27,7 +29,7 @@ const Home = ({ route, navigation }) => {
     <View style={styles.container}>
       <StatusBar style="auto" />
       <View style={styles.banner}>
-        <View style={styles.LeftContent}>
+        <View style={styles.leftContent}>
           <Button
             color={"#008080"}
             title="go to map"
@@ -38,16 +40,19 @@ const Home = ({ route, navigation }) => {
         </View>
         <View style={styles.rightContent}>
           <View style={styles.rightTextContent}>
-            <Text style={styles.name}>{user.name}</Text>
+            <Text style={styles.name}>
+              {user.name ? user.name : user.email}
+            </Text>
           </View>
-          <Image source={{ uri: user.picture }} style={styles.picture} />
+          {user.picture ? (
+            <Image source={{ uri: user.picture }} style={styles.picture} />
+          ) : null}
         </View>
       </View>
     </View>
   );
 };
 const styles = StyleSheet.create({
-  button: {},
   container: {
     flex: 1,
     justifyContent: "flex-start",
@@ -61,7 +66,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   name: {
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: "bold",
     color: "gray",
     marginRight: 20,
@@ -71,17 +76,19 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50,
   },
-  LeftContent: {
+  leftContent: {
     flex: 1,
     alignItems: "flex-start",
     justifyContent: "center",
     marginRight: "auto",
+    marginLeft: "auto",
   },
   rightContent: {
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
     justifyContent: "center",
+    marginRight: "auto",
     marginLeft: "auto",
     flexDirection: "row",
     padding: 10,

@@ -1,4 +1,4 @@
-export const USERS_COLLECTION = "users";
+export const FRIENDS_COLLECTION = "friends";
 export const API_KEY = "AIzaSyAvU-VfngeIE_j1dmGxKJBnDZOo_eOd5-E";
 export const AUTH_DOMAIN = "mapauth-37afa.firebaseapp.com";
 export const PROJECT_ID = "mapauth-37afa";

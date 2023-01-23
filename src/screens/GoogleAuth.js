@@ -15,13 +15,11 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 WebBrowser.maybeCompleteAuthSession();
-
 const fakeUser = {
   name: "John Doe",
   picture:
     "https://cdn.discordapp.com/attachments/483349134661779476/1064226792325533716/Compressed.png",
 };
-
 const GoogleAuth = ({ navigation }) => {
   navigation = useNavigation();
   const [accessToken, setAccessToken] = useState(null);
@@ -35,13 +33,10 @@ const GoogleAuth = ({ navigation }) => {
       "1062703903300-ejsdg7die21apfn2oh4jst7sid260c1v.apps.googleusercontent.com",
   });
 
-  // const { setUser, user } = useContext(UserContext);
-
   useEffect(() => {
     if (response?.type === "success") {
       setAccessToken(response.authentication.accessToken);
       accessToken && fetchUserInformations();
-      // addUser(user);
     }
   }, [response, accessToken]);
 
@@ -51,9 +46,6 @@ const GoogleAuth = ({ navigation }) => {
     });
     const useInfo = await response.json();
     setUser(useInfo);
-    // console.log(addUser(useInfo));
-    // addUser(useInfo);
-    // console.log("addUser", addUser(useInfo));
   }
 
   const ShowUserInfo = () => {
@@ -72,7 +64,14 @@ const GoogleAuth = ({ navigation }) => {
                 screen: "Home",
                 params: { user: user },
               });
+              // console.log("context", (user = useContext(UserContext)));
               // console.log("addUser", addUser(...user));
+            }}
+          />
+          <Button
+            title="test"
+            onPress={() => {
+              console.log("context", user);
             }}
           />
         </View>

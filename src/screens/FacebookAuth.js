@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Facebook from "expo-auth-session/providers/facebook";
-import { StyleSheet, Text } from "react-native";
+import { Button, StyleSheet, Text } from "react-native";
 import { auth } from "../commons/firebaseConfig";
 import { FacebookAuthProvider, signInWithCredential } from "firebase/auth";
 import { ResponseType } from "expo-auth-session";
-
+import { LoginManager, AccessToken } from "react-native-fbsdk-next";
 WebBrowser.maybeCompleteAuthSession();
 
 export default function FacebookAuth() {
@@ -31,6 +31,14 @@ export default function FacebookAuth() {
     >
       Facebook
     </Text>
+    // <Button
+    //   title="Facebook Sign-In"
+    //   onPress={() =>
+    //     onFacebookButtonPress().then(() =>
+    //       console.log("Signed in with Facebook!")
+    //     )
+    //   }
+    // />
   );
 }
 const styles = StyleSheet.create({

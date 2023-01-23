@@ -6,6 +6,19 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "plugins": [
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "1112967956770445",
+          "clientToken": "5f4dbffdd90845420fb82b3eecaa3ccb",
+          "displayName": "mapauthentificate",
+          "advertiserIDCollectionEnabled": true,
+          "autoLogAppEventsEnabled": true,
+          "isAutoInitEnabled": true
+        }
+      ]
+    ],
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

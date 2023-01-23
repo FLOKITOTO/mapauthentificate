@@ -1,27 +1,35 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../commons/UserContext";
 
 const Home = ({ navigation }) => {
   navigation = useNavigation();
 
+  // const [user, setUser] = useContext(UserContext);
+
+  // const handleLogout = () => {
+  //   setUser(null);
+  // };
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <Text style={styles.text}>settings</Text>
       <Button
+        color="#008080"
         title="go to map"
         onPress={() => {
           navigation.navigate("Planisphere");
         }}
       />
       <Button
+        color="#8B0000"
         title="LogOut"
         onPress={() => {
           navigation.navigate("Login", {
             screen: "Login",
           });
+          // handleLogout;
         }}
       />
     </View>

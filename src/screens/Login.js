@@ -5,14 +5,11 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
-  Button,
   TextInput,
   KeyboardAvoidingView,
 } from "react-native";
-import GoogleAuth from "./GoogleAuth";
 import FacebookAuth from "./FacebookAuth";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { auth } from "../commons/firebaseConfig";
 import {
@@ -23,6 +20,9 @@ import {
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   navigation = useNavigation();
 
@@ -40,17 +40,22 @@ const Login = ({ navigation }) => {
   }, []);
 
   const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredentials) => {
-        const user = userCredentials.user;
-        console.log("Registered with:", user.email);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode);
-        console.log(errorMessage);
-      });
+    if (!email || !password) {
+      setEmailError(!email ? "Email field is required" : "");
+      setPasswordError(!password ? "Password field is required" : "");
+    } else {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredentials) => {
+          const user = userCredentials.user;
+          console.log("Registered with:", user.email);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode);
+          console.log(errorMessage);
+        });
+    }
   };
 
   const handleLogin = () => {
@@ -97,9 +102,51 @@ const Login = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={handleSignUp} style={styles.subButton}>
+          <TouchableOpacity
+            onPress={() => setModalVisible(true)}
+            style={styles.subButton}
+          >
             <Text style={styles.buttonSubText}>Register</Text>
           </TouchableOpacity>
+
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={isModalVisible}
+          >
+            <View style={styles.container}>
+              <TextInput
+                placeholder="Email"
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+                style={styles.input}
+              />
+              {emailError && <Text style={styles.errorText}>{emailError}</Text>}
+              <TextInput
+                placeholder="Password"
+                value={password}
+                onChangeText={(text) => setPassword(text)}
+                style={styles.input}
+                secureTextEntry
+              />
+
+              {passwordError && (
+                <Text style={styles.errorText}>{passwordError}</Text>
+              )}
+              <TouchableOpacity
+                onPress={() => {
+                  if (!email || !password) {
+                    handleSignUp();
+                    return;
+                  }
+                  handleSignUp();
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={styles.buttonSubText}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
         </View>
         <Text style={styles.margin}> OU </Text>
         <View style={styles.socialButtonContainer}>
@@ -121,6 +168,9 @@ const Login = ({ navigation }) => {
 export default Login;
 
 const styles = StyleSheet.create({
+  errorText: {
+    color: "red",
+  },
   margin: {
     marginBottom: 25,
   },
