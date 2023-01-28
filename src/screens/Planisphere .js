@@ -34,6 +34,7 @@ const Planisphere = () => {
   const [destinationMarker, setDestinationMarker] = useState(null);
   const [originSelected, setOriginSelected] = useState(false);
   const [clueOpacity, setClueOpacity] = useState(1);
+  const [destinationAddress, setDestinationAddress] = useState("");
 
   function handleDoubleClick() {
     if (!originSelected) {
@@ -44,6 +45,7 @@ const Planisphere = () => {
     } else {
     }
   }
+
   enableLatestRenderer();
 
   function toggleModal(data, details) {
@@ -139,6 +141,8 @@ const Planisphere = () => {
     setOrigin(null);
     setDestination(null);
     setDistance(null);
+    setDestinationMarker(null);
+    setDestinationAddress("");
   };
 
   return (
@@ -267,6 +271,7 @@ const Planisphere = () => {
                     latitude: details.geometry.location.lat,
                     longitude: details.geometry.location.lng,
                   });
+                  setDestinationAddress(data.description);
                   setModalVisible(false);
                 }
               }}
@@ -332,6 +337,7 @@ const Planisphere = () => {
             />
             <Button color={"#004040"} title="Unzoom" onPress={handleUnzoom} />
             <Text>Distance: {distance} km</Text>
+            <Text>Adresse d'arrivée : {destinationAddress}</Text>
           </View>
         )}
       </View>
