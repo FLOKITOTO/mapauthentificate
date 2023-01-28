@@ -30,7 +30,8 @@ const Planisphere = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [destination, setDestination] = useState(null);
   const [origin, setOrigin] = useState(null);
-  const [destinationInfo, setDestinationInfo] = useState("");
+  const [distance, setDistance] = useState(null);
+  const [destinationMarker, setDestinationMarker] = useState(null);
   const [originSelected, setOriginSelected] = useState(false);
   const [clueOpacity, setClueOpacity] = useState(1);
 
@@ -137,6 +138,7 @@ const Planisphere = () => {
   const handleReset = () => {
     setOrigin(null);
     setDestination(null);
+    setDistance(null);
   };
 
   return (
@@ -175,6 +177,13 @@ const Planisphere = () => {
             }
             title={"Your location"}
           />
+          {destinationMarker && (
+            <Marker
+              coordinate={destinationMarker}
+              pinColor={"green"}
+              title={"Destination"}
+            />
+          )}
           {friends.map((friend) => (
             <Marker
               key={friend.id}
@@ -208,6 +217,8 @@ const Planisphere = () => {
                     top: height / 20,
                   },
                 });
+                setDistance(result.distance);
+                setDestinationMarker(destination);
               }}
             />
           )}
@@ -320,6 +331,7 @@ const Planisphere = () => {
               onPress={handleFindMyLocation}
             />
             <Button color={"#004040"} title="Unzoom" onPress={handleUnzoom} />
+            <Text>Distance: {distance} km</Text>
           </View>
         )}
       </View>
