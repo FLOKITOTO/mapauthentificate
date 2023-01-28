@@ -1,12 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View, Button, Linking } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  Linking,
+  Dimensions,
+} from "react-native";
+const { width, height } = Dimensions.get("window");
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import { Alert } from "react-native";
 import { enableLatestRenderer } from "react-native-maps";
 import { getFriends } from "../commons/firebaseConfig";
 import Modal from "react-native-modal";
+import { GOOGLE_MAPS_API_KEY } from "../commons/contants";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const Planisphere = () => {
   const [location, setLocation] = useState(null);
@@ -17,11 +28,26 @@ const Planisphere = () => {
   const [permissions, setPermissions] = useState(null);
   const [friends, setFriends] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [destination, setDestination] = useState(null);
+  const [origin, setOrigin] = useState(null);
+  const [destinationInfo, setDestinationInfo] = useState("");
+  const [originSelected, setOriginSelected] = useState(false);
+  const [clueOpacity, setClueOpacity] = useState(1);
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+  function handleDoubleClick() {
+    if (!originSelected) {
+      setClueOpacity(0.5);
+      setTimeout(() => {
+        setClueOpacity(1);
+      }, 500);
+    } else {
+    }
+  }
   enableLatestRenderer();
+
+  function toggleModal(data, details) {
+    setModalVisible(!isModalVisible);
+  }
 
   useEffect(() => {
     const fetchPermission = async () => {
@@ -73,7 +99,6 @@ const Planisphere = () => {
     async function fetchFriends() {
       const friends = await getFriends();
       setFriends(friends);
-      console.log(friends);
     }
     fetchFriends();
   }, []);
@@ -109,12 +134,22 @@ const Planisphere = () => {
     return "Waiting..";
   }, [errorMsg, location]);
 
+  const handleReset = () => {
+    setOrigin(null);
+    setDestination(null);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
 
       {location && (
         <MapView
+          onDoublePress={() => {
+            handleDoubleClick();
+            toggleModal();
+          }}
+          onPress={handleReset}
           provider={PROVIDER_GOOGLE}
           ref={(ref) => setMapRef(ref)}
           style={styles.map}
@@ -132,48 +167,152 @@ const Planisphere = () => {
               latitude: location.coords.latitude,
               longitude: location.coords.longitude,
             }}
+            onPress={() =>
+              setOrigin({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              })
+            }
             title={"Your location"}
           />
           {friends.map((friend) => (
             <Marker
               key={friend.id}
               coordinate={{
-                latitude: friend.latitude,
-                longitude: friend.longitude,
+                latitude: friend.coords.latitude,
+                longitude: friend.coords.longitude,
               }}
               title={friend.title}
               description={friend.description}
+              onPress={() =>
+                setOrigin({
+                  latitude: friend.coords.latitude,
+                  longitude: friend.coords.longitude,
+                })
+              }
             />
           ))}
+          {origin && destination && (
+            <MapViewDirections
+              origin={origin}
+              destination={destination}
+              apikey={GOOGLE_MAPS_API_KEY}
+              strokeWidth={3}
+              strokeColor="hotpink"
+              onReady={(result) => {
+                mapRef.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    right: width / 20,
+                    bottom: height / 20,
+                    left: width / 20,
+                    top: height / 20,
+                  },
+                });
+              }}
+            />
+          )}
         </MapView>
       )}
       <View>
         <Text style={styles.paragraph}>{text}</Text>
       </View>
 
-      <Modal
-        onBackdropPress={() => setModalVisible(false)}
-        onBackButtonPress={() => setModalVisible(false)}
-        isVisible={isModalVisible}
-        swipeDirection="down"
-        onSwipeComplete={toggleModal}
-        animationIn="bounceInUp"
-        animationOut="bounceOutDown"
-        animationInTiming={900}
-        animationOutTiming={500}
-        backdropTransitionInTiming={1000}
-        backdropTransitionOutTiming={500}
-        style={styles.modal}
-      >
-        <View style={styles.modalContent}>
-          <View style={styles.center}>
-            <View style={styles.barIcon} />
+      {origin ? (
+        <Modal
+          onBackdropPress={() => setModalVisible(false)}
+          onBackButtonPress={() => setModalVisible(false)}
+          isVisible={isModalVisible}
+          swipeDirection="down"
+          onSwipeComplete={toggleModal}
+          animationIn="bounceInUp"
+          animationOut="bounceOutDown"
+          animationInTiming={900}
+          animationOutTiming={500}
+          backdropTransitionInTiming={1000}
+          backdropTransitionOutTiming={500}
+          style={styles.modal}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.center}>
+              <View style={styles.barIcon} />
+            </View>
+
+            <GooglePlacesAutocomplete
+              placeholder="Search"
+              minLength={2}
+              autoFocus={false}
+              returnKeyType={"search"}
+              listViewDisplayed="auto"
+              fetchDetails={true}
+              onPress={(data, details = null) => {
+                if (!origin) {
+                  setOrigin({
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng,
+                  });
+                } else {
+                  setDestination({
+                    name: data.structured_formatting.main_text,
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng,
+                  });
+                  setModalVisible(false);
+                }
+              }}
+              query={{
+                key: GOOGLE_MAPS_API_KEY,
+                language: "en",
+              }}
+              styles={{
+                textInputContainer: {
+                  width: "100%",
+                },
+                description: {
+                  fontWeight: "bold",
+                },
+                predefinedPlacesDescription: {
+                  color: "#1faadb",
+                },
+              }}
+              currentLocation={false}
+              currentLocationLabel="Current location"
+              nearbyPlacesAPI="GooglePlacesSearch"
+              GoogleReverseGeocodingQuery={{}}
+              GooglePlacesSearchQuery={{
+                rankby: "distance",
+                types: "food",
+              }}
+              filterReverseGeocodingByTypes={[
+                "locality",
+                "administrative_area_level_3",
+              ]}
+              debounce={200}
+            />
           </View>
+        </Modal>
+      ) : null}
+
+      {!origin ? (
+        <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
+          <Text style={styles.clue}>Selectionne un point de départ</Text>
         </View>
-      </Modal>
+      ) : !destination ? (
+        <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
+          <Text style={styles.clue}>
+            Double tape on map pour définir un itinéraire
+          </Text>
+        </View>
+      ) : (
+        <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
+          <Text style={styles.clue}>
+            Pour réinitialiser le trajet clique une fois sur la map
+          </Text>
+        </View>
+      )}
+
       <View style={styles.bord}>
         {locationAccepted && (
-          <View style={styles.buttonContainer} onPress={() => setOpacity(1)}>
+          <View style={styles.buttonContainer}>
             <Button
               color={"#008080"}
               style={styles.button}
@@ -181,9 +320,6 @@ const Planisphere = () => {
               onPress={handleFindMyLocation}
             />
             <Button color={"#004040"} title="Unzoom" onPress={handleUnzoom} />
-            <View>
-              <Button title="Show Bottom Sheet" onPress={toggleModal} />
-            </View>
           </View>
         )}
       </View>
@@ -192,6 +328,21 @@ const Planisphere = () => {
 };
 
 const styles = StyleSheet.create({
+  clueContainer: {
+    position: "absolute",
+    display: "flex",
+    alignItems: "center",
+    marginTop: "105%",
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    padding: 10,
+    width: "auto",
+    backgroundColor: "white",
+  },
+  clue: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   modal: {
     justifyContent: "flex-end",
     margin: 0,
@@ -216,11 +367,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#bbb",
     borderRadius: 3,
   },
-  // text: {
-  //   color: "#bbb",
-  //   fontSize: 24,
-  //   marginTop: 100,
-  // },
+
   btnContainer: {
     display: "flex",
     alignItems: "center",
@@ -229,9 +376,11 @@ const styles = StyleSheet.create({
   },
 
   bord: {
-    backgroundColor: "red",
-    height: 300,
+    backgroundColor: "#ffff",
+    height: 200,
     width: "100%",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     position: "absolute",
     flex: 0,
     margin: 0,
@@ -240,7 +389,7 @@ const styles = StyleSheet.create({
   map: {
     position: "absolute",
     width: "100%",
-    height: "60%",
+    height: "70%",
     alignItems: "center",
     justifyContent: "center",
   },
