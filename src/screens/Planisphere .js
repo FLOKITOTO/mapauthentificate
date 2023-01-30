@@ -6,18 +6,22 @@ import {
   Button,
   Linking,
   Dimensions,
+  Alert,
+  Switch,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
 const { width, height } = Dimensions.get("window");
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
-import { Alert } from "react-native";
 import { enableLatestRenderer } from "react-native-maps";
-import { getFriends } from "../commons/firebaseConfig";
+import { db, getFriends, getNoFriends } from "../commons/firebaseConfig";
 import Modal from "react-native-modal";
-import { GOOGLE_MAPS_API_KEY } from "../commons/contants";
+import { GOOGLE_MAPS_API_KEY, USERS_COLLECTION } from "../commons/contants";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const Planisphere = () => {
   const [location, setLocation] = useState(null);
@@ -27,6 +31,7 @@ const Planisphere = () => {
   const [subscription, setSubscription] = useState(null);
   const [permissions, setPermissions] = useState(null);
   const [friends, setFriends] = useState([]);
+  const [noFriends, setNoFriends] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [destination, setDestination] = useState(null);
   const [origin, setOrigin] = useState(null);
@@ -35,6 +40,8 @@ const Planisphere = () => {
   const [originSelected, setOriginSelected] = useState(false);
   const [clueOpacity, setClueOpacity] = useState(1);
   const [destinationAddress, setDestinationAddress] = useState("");
+  const [friendsMode, setFriendsMode] = useState(true);
+  const [selectedMarker, setSelectedMarker] = useState(null);
 
   function handleDoubleClick() {
     if (!originSelected) {
@@ -106,6 +113,14 @@ const Planisphere = () => {
     fetchFriends();
   }, []);
 
+  useEffect(() => {
+    async function fetchNoFriends() {
+      const noFriends = await getNoFriends();
+      setNoFriends(noFriends);
+    }
+    fetchNoFriends();
+  }, []);
+
   const handleFindMyLocation = () => {
     if (location && mapRef) {
       mapRef.fitToCoordinates([
@@ -122,7 +137,7 @@ const Planisphere = () => {
       mapRef.animateToRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
+        latitudeDelta: 0.4,
         longitudeDelta: 0.0421,
       });
     }
@@ -144,6 +159,58 @@ const Planisphere = () => {
     setDestinationMarker(null);
     setDestinationAddress("");
   };
+
+  const friendsPredefinedPlaces = friends.map((friend) => ({
+    description: friend.title,
+    structured_formatting: {
+      main_text: friend.title,
+    },
+    geometry: {
+      location: {
+        lat: friend.coords.latitude,
+        lng: friend.coords.longitude,
+      },
+    },
+  }));
+
+  // async function handleAddFriend() {
+  //   try {
+  //     const userRef = doc(db, USERS_COLLECTION, "user");
+  //     const docSnap = await getDoc(userRef);
+
+  //     await setDoc(userRef, {
+  //       id: user.id,
+  //       name: user.name,
+  //       picture: user.picture,
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
+  // Dans le bouton "ajouter en ami"
+
+  async function handleAddFriend() {
+    try {
+      const userRef = doc(db, "friends", origin.title);
+      const docSnap = await getDoc(userRef);
+
+      await setDoc(userRef, {
+        title: origin.title,
+        description: origin.description,
+        coords: {
+          latitude: origin.latitude,
+          longitude: origin.longitude,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // const updatedNoFriends = noFriends.filter(
+  //   (noFriend) => noFriend.title !== origin.title
+  // );
+  // setNoFriends(updatedNoFriends);
 
   return (
     <View style={styles.container}>
@@ -195,12 +262,36 @@ const Planisphere = () => {
                 latitude: friend.coords.latitude,
                 longitude: friend.coords.longitude,
               }}
+              pinColor={"orange"}
               title={friend.title}
               description={friend.description}
-              onPress={() =>
+              onPress={() => {
+                // setSelectedMarker({});
                 setOrigin({
+                  title: friend.title,
+                  description: friend.description,
                   latitude: friend.coords.latitude,
                   longitude: friend.coords.longitude,
+                });
+              }}
+            />
+          ))}
+          {noFriends.map((noFriend) => (
+            <Marker
+              key={noFriend.id}
+              coordinate={{
+                latitude: noFriend.coords.latitude,
+                longitude: noFriend.coords.longitude,
+              }}
+              pinColor={"pink"}
+              title={noFriend.title}
+              description={noFriend.description}
+              onPress={() =>
+                setOrigin({
+                  title: noFriend.title,
+                  description: noFriend.description,
+                  latitude: noFriend.coords.latitude,
+                  longitude: noFriend.coords.longitude,
                 })
               }
             />
@@ -252,79 +343,140 @@ const Planisphere = () => {
               <View style={styles.barIcon} />
             </View>
 
-            <GooglePlacesAutocomplete
-              placeholder="Search"
-              minLength={2}
-              autoFocus={false}
-              returnKeyType={"search"}
-              listViewDisplayed="auto"
-              fetchDetails={true}
-              onPress={(data, details = null) => {
-                if (!origin) {
-                  setOrigin({
-                    latitude: details.geometry.location.lat,
-                    longitude: details.geometry.location.lng,
-                  });
-                } else {
-                  setDestination({
-                    name: data.structured_formatting.main_text,
-                    latitude: details.geometry.location.lat,
-                    longitude: details.geometry.location.lng,
-                  });
-                  setDestinationAddress(data.description);
-                  setModalVisible(false);
-                }
-              }}
-              query={{
-                key: GOOGLE_MAPS_API_KEY,
-                language: "en",
-              }}
-              styles={{
-                textInputContainer: {
-                  width: "100%",
-                },
-                description: {
-                  fontWeight: "bold",
-                },
-                predefinedPlacesDescription: {
-                  color: "#1faadb",
-                },
-              }}
-              currentLocation={false}
-              currentLocationLabel="Current location"
-              nearbyPlacesAPI="GooglePlacesSearch"
-              GoogleReverseGeocodingQuery={{}}
-              GooglePlacesSearchQuery={{
-                rankby: "distance",
-                types: "food",
-              }}
-              filterReverseGeocodingByTypes={[
-                "locality",
-                "administrative_area_level_3",
-              ]}
-              debounce={200}
-            />
+            <View style={styles.switchContainer}>
+              <Text>
+                {friendsMode
+                  ? "Recherche d'itinéraire standard"
+                  : "Filtrer en fonction de tes ami(e)s"}
+              </Text>
+              <Switch
+                value={friendsMode}
+                onValueChange={(value) => setFriendsMode(value)}
+              />
+            </View>
+
+            {friendsMode ? (
+              <GooglePlacesAutocomplete
+                placeholder="All arround the world"
+                minLength={2}
+                autoFocus={false}
+                returnKeyType={"search"}
+                listViewDisplayed="auto"
+                fetchDetails={true}
+                onPress={(data, details = null) => {
+                  if (!origin) {
+                    setOrigin({
+                      latitude: details.geometry.location.lat,
+                      longitude: details.geometry.location.lng,
+                    });
+                  } else {
+                    setDestination({
+                      name: data.structured_formatting.main_text,
+                      latitude: details.geometry.location.lat,
+                      longitude: details.geometry.location.lng,
+                    });
+                    setDestinationAddress(data.description);
+                    setModalVisible(false);
+                  }
+                }}
+                query={{
+                  key: GOOGLE_MAPS_API_KEY,
+                  language: "en",
+                }}
+                styles={{
+                  textInputContainer: {
+                    width: "100%",
+                  },
+                  description: {
+                    fontWeight: "bold",
+                  },
+                  predefinedPlacesDescription: {
+                    color: "#1faadb",
+                  },
+                }}
+                currentLocation={false}
+                currentLocationLabel="Current location"
+                nearbyPlacesAPI="GooglePlacesSearch"
+                GoogleReverseGeocodingQuery={{}}
+                GooglePlacesSearchQuery={{
+                  rankby: "distance",
+                  types: "food",
+                }}
+                filterReverseGeocodingByTypes={[
+                  "locality",
+                  "administrative_area_level_3",
+                ]}
+                debounce={200}
+              />
+            ) : (
+              <GooglePlacesAutocomplete
+                placeholder="Only My friends"
+                predefinedPlaces={friendsPredefinedPlaces}
+                minLength={2}
+                autoFocus={false}
+                returnKeyType={"search"}
+                listViewDisplayed="auto"
+                fetchDetails={true}
+                onPress={(data, details = null) => {
+                  if (!origin) {
+                    setOrigin({
+                      latitude: details.geometry.location.lat,
+                      longitude: details.geometry.location.lng,
+                    });
+                  } else {
+                    setDestination({
+                      name: data.structured_formatting.main_text,
+                      latitude: details.geometry.location.lat,
+                      longitude: details.geometry.location.lng,
+                    });
+                    setDestinationAddress(data.description);
+                    setModalVisible(false);
+                  }
+                }}
+                styles={{
+                  textInputContainer: {
+                    width: "100%",
+                  },
+                  description: {
+                    fontWeight: "bold",
+                  },
+                  predefinedPlacesDescription: {
+                    color: "#1faadb",
+                  },
+                }}
+                currentLocation={false}
+                currentLocationLabel="Current location"
+                nearbyPlacesAPI="GooglePlacesSearch"
+                GoogleReverseGeocodingQuery={{}}
+                GooglePlacesSearchQuery={{
+                  rankby: "distance",
+                  types: "food",
+                }}
+                debounce={200}
+              />
+            )}
           </View>
         </Modal>
       ) : null}
-
-      {!origin ? (
-        <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
-          <Text style={styles.clue}>Selectionne un point de départ</Text>
-        </View>
-      ) : !destination ? (
-        <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
-          <Text style={styles.clue}>
-            Double tape on map pour définir un itinéraire
-          </Text>
-        </View>
-      ) : (
-        <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
-          <Text style={styles.clue}>
-            Pour réinitialiser le trajet clique une fois sur la map
-          </Text>
-        </View>
-      )}
+      {locationAccepted ? (
+        !origin ? (
+          <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
+            <Text style={styles.clue}>Selectionne un point de départ</Text>
+          </View>
+        ) : !destination ? (
+          <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
+            <Text style={styles.clue}>
+              Double tape on map pour définir un itinéraire
+            </Text>
+          </View>
+        ) : (
+          <View style={[styles.clueContainer, { opacity: clueOpacity }]}>
+            <Text style={styles.clue}>
+              Pour réinitialiser le trajet clique une fois sur la map
+            </Text>
+          </View>
+        )
+      ) : null}
 
       <View style={styles.bord}>
         {locationAccepted && (
@@ -338,6 +490,14 @@ const Planisphere = () => {
             <Button color={"#004040"} title="Unzoom" onPress={handleUnzoom} />
             <Text>Distance: {distance} km</Text>
             <Text>Adresse d'arrivée : {destinationAddress}</Text>
+            {origin && (
+              <Button
+                title="Ajouter en ami"
+                onPress={() => {
+                  handleAddFriend();
+                }}
+              />
+            )}
           </View>
         )}
       </View>
@@ -346,13 +506,28 @@ const Planisphere = () => {
 };
 
 const styles = StyleSheet.create({
+  marker: {
+    width: 80,
+    height: 80,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "gray",
+    padding: 10,
+    marginBottom: 10,
+  },
   clueContainer: {
     position: "absolute",
     display: "flex",
     alignItems: "center",
-    marginTop: "105%",
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
     padding: 10,
     width: "auto",
     backgroundColor: "white",

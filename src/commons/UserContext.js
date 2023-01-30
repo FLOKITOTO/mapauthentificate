@@ -1,5 +1,5 @@
-// import { createContext } from "react";
+import { createContext } from "react";
 
-// const UserContext = createContext({});
+const UserContext = createContext({ user: {}, auth: false });
 
-// export default UserContext;
+export default UserContext;

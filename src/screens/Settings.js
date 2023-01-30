@@ -7,8 +7,6 @@ import { UserContext } from "../commons/UserContext";
 const Home = ({ navigation }) => {
   navigation = useNavigation();
 
-  // const [user, setUser] = useContext(UserContext);
-
   // const handleLogout = () => {
   //   setUser(null);
   // };

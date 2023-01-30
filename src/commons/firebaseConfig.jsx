@@ -23,6 +23,8 @@ import {
   PROJECT_ID,
   STORAGE_BUCKET,
   FRIENDS_COLLECTION,
+  NO_FRIENDS_COLLECTION,
+  USERS_COLLECTION,
 } from "./contants";
 
 const firebaseConfig = {
@@ -34,30 +36,11 @@ const firebaseConfig = {
   appId: APP_ID,
   measurementId: MEASUREMENT_ID,
 };
-// const firebaseConfig = {
-//   apiKey: "AIzaSyAvU-VfngeIE_j1dmGxKJBnDZOo_eOd5-E",
-//   authDomain: "mapauth-37afa.firebaseapp.com",
-//   projectId: "mapauth-37afa",
-//   storageBucket: "mapauth-37afa.appspot.com",
-//   messagingSenderId: "799196939798",
-//   appId: "1:799196939798:web:330f03355b4a10e474d737",
-//   measurementId: "G-QSCBYQ8TQ6",
-// };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
-// export async function addUser(user) {
-//   try {
-//     const usersRef = collection(db, FIRENDS_COLLECTION);
-//     const userRef = await addDoc(usersRef, user);
-//     console.log("User is added, id :", userRef.id);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
 
 export async function getFriends() {
   try {
@@ -68,6 +51,34 @@ export async function getFriends() {
       friends.push({ id: doc.id, ...doc.data() });
     });
     return friends;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getUser() {
+  try {
+    const friendsRef = collection(db, USERS_COLLECTION);
+    const docSnap = await getDocs(userssRef);
+    const friends = [];
+    docSnap.forEach((doc) => {
+      friends.push({ id: doc.id, ...doc.data() });
+    });
+    return friends;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getNoFriends() {
+  try {
+    const noFriendsRef = collection(db, NO_FRIENDS_COLLECTION);
+    const docSnap = await getDocs(noFriendsRef);
+    const noFriends = [];
+    docSnap.forEach((doc) => {
+      noFriends.push({ id: doc.id, ...doc.data() });
+    });
+    return noFriends;
   } catch (error) {
     console.error(error);
   }

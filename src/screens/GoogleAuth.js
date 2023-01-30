@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Button,
+  LogBox,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
@@ -13,17 +14,25 @@ import * as Google from "expo-auth-session/providers/google";
 import { SvgUri } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { addUser, db } from "../commons/firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { USERS_COLLECTION } from "../commons/contants";
+// import { UserContext } from "../commons/UserContext";
+// import { createContext } from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 const fakeUser = {
+  id: 1,
   name: "John Doe",
   picture:
     "https://cdn.discordapp.com/attachments/483349134661779476/1064226792325533716/Compressed.png",
 };
+
 const GoogleAuth = ({ navigation }) => {
   navigation = useNavigation();
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(fakeUser);
+  const [auth, setAuth] = useState(false);
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "1062703903300-g9berao3p6nk6mqk9g0b72patvka83kk.apps.googleusercontent.com",
@@ -48,6 +57,21 @@ const GoogleAuth = ({ navigation }) => {
     setUser(useInfo);
   }
 
+  async function handleAddUser() {
+    try {
+      const userRef = doc(db, USERS_COLLECTION, user.id.toString());
+      const docSnap = await getDoc(userRef);
+
+      await setDoc(userRef, {
+        id: user.id,
+        name: user.name,
+        picture: user.picture,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const ShowUserInfo = () => {
     if (user) {
       return (
@@ -60,18 +84,12 @@ const GoogleAuth = ({ navigation }) => {
             disabled={!request}
             title="Acceder au tableau de bord"
             onPress={() => {
+              handleAddUser();
+
               navigation.navigate("MapTab", {
                 screen: "Home",
                 params: { user: user },
               });
-              // console.log("context", (user = useContext(UserContext)));
-              // console.log("addUser", addUser(...user));
-            }}
-          />
-          <Button
-            title="test"
-            onPress={() => {
-              console.log("context", user);
             }}
           />
         </View>

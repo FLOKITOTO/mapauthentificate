@@ -13,7 +13,7 @@
   </queries>
   <application android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:allowBackup="true" android:theme="@style/AppTheme" android:usesCleartextTraffic="true">
     <meta-data android:name="expo.modules.updates.ENABLED" android:value="true"/>
-    <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDRDU4qfLJY9hvc09IndQ18s0wZngCFn6Q"/>
+    <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCopnF0QeUP_w3S8h1Vd2ZA5bDbO8FACF8"/>
     <meta-data android:name="expo.modules.updates.EXPO_SDK_VERSION" android:value="47.0.0"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS" android:value="0"/>
@@ -32,5 +32,22 @@
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
+    <activity
+  android:launchMode="singleTask"
+  android:name="com.mapauthentificate.MainActivity"
+  android:label="@string/app_name"
+  android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+  android:windowSoftInputMode="adjustResize"
+  android:exported="true">
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data 
+      android:host="app"
+      android:scheme="mapauthentificate" 
+    />
+  </intent-filter>
+</activity>
   </application>
 </manifest>
