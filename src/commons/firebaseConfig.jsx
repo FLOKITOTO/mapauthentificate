@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
+
 import {
   collection,
   doc,
@@ -25,6 +27,7 @@ import {
   FRIENDS_COLLECTION,
   NO_FRIENDS_COLLECTION,
   USERS_COLLECTION,
+  DATABASE_URL,
 } from "./contants";
 
 const firebaseConfig = {
@@ -35,12 +38,14 @@ const firebaseConfig = {
   messagingSenderId: MESSAGING_SENDER_ID,
   appId: APP_ID,
   measurementId: MEASUREMENT_ID,
+  databaseURL: DATABASE_URL,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const dbrt = getDatabase(app);
 
 export async function getFriends() {
   try {

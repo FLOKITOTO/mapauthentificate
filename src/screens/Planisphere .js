@@ -8,14 +8,14 @@ import {
   Dimensions,
   Alert,
   Switch,
-  TextInput,
   TouchableOpacity,
   Image,
+  Share,
 } from "react-native";
 const { width, height } = Dimensions.get("window");
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { enableLatestRenderer } from "react-native-maps";
 import { db, getFriends, getNoFriends } from "../commons/firebaseConfig";
@@ -23,8 +23,6 @@ import Modal from "react-native-modal";
 import { GOOGLE_MAPS_API_KEY, USERS_COLLECTION } from "../commons/contants";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { nanoid } from "nanoid";
-import { SvgUri } from "react-native-svg";
 
 const Planisphere = () => {
   const [location, setLocation] = useState(null);
@@ -44,7 +42,6 @@ const Planisphere = () => {
   const [clueOpacity, setClueOpacity] = useState(1);
   const [destinationAddress, setDestinationAddress] = useState("");
   const [friendsMode, setFriendsMode] = useState(true);
-  const [selectedMarker, setSelectedMarker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [originIsFriend, setOriginIsFriend] = useState(false);
 
@@ -188,7 +185,6 @@ const Planisphere = () => {
 
   async function handleAddFriend() {
     try {
-      // const friendId = nanoid().toString();
       const friendId = origin.id;
       const userRef = doc(db, "friends", friendId);
       const docSnap = await getDoc(userRef);
@@ -302,7 +298,7 @@ const Planisphere = () => {
             title={"Your location"}
           />
           {destinationMarker && (
-            <Marker
+            <r
               coordinate={destinationMarker}
               pinColor={"green"}
               title={"Destination"}
@@ -558,9 +554,10 @@ const Planisphere = () => {
             <Text>Adresse d'arrivée : {destinationAddress}</Text>
 
             {origin && (
-              <View style={styles.actions}>
+              <View style={styles.actionsContainer}>
                 {friends.some((friend) => friend.title === origin.title) ? (
                   <Button
+                    style={styles.actions}
                     title="Retirer ami"
                     onPress={() => {
                       handleRemoveFriend();
@@ -568,12 +565,29 @@ const Planisphere = () => {
                   />
                 ) : (
                   <Button
+                    style={styles.actions}
                     title="Ajouter ami"
                     onPress={() => {
                       handleAddFriend();
                     }}
                   />
                 )}
+                <View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      const message = `I am located here : ${origin.latitude}, ${origin.longitude}, I have ${distance} km to go before I arrive!.  I'm coming soon: ${destinationAddress}`;
+                      Share.share({ message }, { subject: "Share Location" });
+                    }}
+                    style={styles.shareButton}
+                  >
+                    <Image
+                      source={{
+                        uri: "https://cdn.discordapp.com/attachments/483349134661779476/1070455466355867648/share_480px.png",
+                      }}
+                      style={styles.zoomStatus}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           </View>
@@ -584,12 +598,23 @@ const Planisphere = () => {
 };
 
 const styles = StyleSheet.create({
+  actions: {
+    marginRight: 20,
+    paddingRight: 20,
+  },
+  actionsContainer: {
+    width: "100%",
+    height: "auto",
+    display: "flex",
+    flexDirection: "row",
+  },
   zoomStatus: {
     height: 30,
     width: 30,
+    marginRight: 30,
+    marginBottom: 10,
   },
   buttonZoom: {
-    backgroundColor: "red",
     width: "100%",
     display: "flex",
     flexDirection: "row",

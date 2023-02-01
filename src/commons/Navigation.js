@@ -8,7 +8,7 @@ import Planisphere from "../screens/Planisphere ";
 import { NavigationContainer } from "@react-navigation/native";
 import GoogleAuth from "../screens/GoogleAuth";
 import { Linking, View } from "react-native";
-import linking from "./linking.js";
+import { Ionicons } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,6 +30,15 @@ const MapTab = () => {
           gestureEnabled: false,
           headerShown: true,
           headerLeft: () => <View style={{ width: 0, height: 0 }} />,
+          tabBarIcon: (tabInfo) => {
+            return (
+              <Ionicons
+                name="md-home"
+                size={24}
+                color={tabInfo.focused ? "#006600" : "#8e8e93"}
+              />
+            );
+          },
         }}
       />
       <Tab.Screen
@@ -37,6 +46,15 @@ const MapTab = () => {
           gestureEnabled: false,
           headerShown: true,
           headerLeft: () => <View style={{ width: 0, height: 0 }} />,
+          tabBarIcon: (tabInfo) => {
+            return (
+              <Ionicons
+                name="md-map"
+                size={24}
+                color={tabInfo.focused ? "#008080" : "#8e8e93"}
+              />
+            );
+          },
         }}
         name="Planisphere"
         component={Planisphere}
@@ -46,6 +64,15 @@ const MapTab = () => {
           gestureEnabled: false,
           headerShown: true,
           headerLeft: () => <View style={{ width: 0, height: 0 }} />,
+          tabBarIcon: (tabInfo) => {
+            return (
+              <Ionicons
+                name="md-settings"
+                size={24}
+                color={tabInfo.focused ? "#008080" : "#8e8e93"}
+              />
+            );
+          },
         }}
         name="Settings"
         component={Settings}

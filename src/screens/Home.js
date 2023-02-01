@@ -1,13 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { GiftedChat } from "react-native-gifted-chat";
+import { dbrt } from "../commons/firebaseConfig";
+import { onValue, ref, set } from "firebase/database";
 
 const Home = ({ route, navigation }) => {
-  // const Home = ({ navigation }) => {
+  const [messages, setMessages] = useState([]);
+
   navigation = useNavigation();
   const { user } = route.params;
-  // const { user } = useContext(UserContext);
 
   useEffect(() => {
     return () => {
@@ -15,6 +18,21 @@ const Home = ({ route, navigation }) => {
     };
   }, [user]);
 
+  useEffect(() => {
+    const messagesRef = ref(dbrt, "messages");
+    onValue(messagesRef, (snapshot) => {
+      setMessages(snapshot.val());
+    });
+  }, []);
+
+  const onSend = (newMessage = []) => {
+    setMessages([...messages, ...newMessage]);
+
+    const messagesRef = ref(dbrt, "messages");
+    set(messagesRef, messages);
+  };
+
+  // prevent back
   useFocusEffect(
     React.useCallback(() => {
       const unsubscribe = navigation.addListener("beforeRemove", (e) => {
@@ -49,10 +67,24 @@ const Home = ({ route, navigation }) => {
           ) : null}
         </View>
       </View>
+      <View style={styles.chatContainer}>
+        <GiftedChat style={styles.chat} messages={messages} onSend={onSend} />
+      </View>
     </View>
   );
 };
 const styles = StyleSheet.create({
+  chatContainer: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 50,
+  },
+  chatContainer: {
+    width: "100%",
+    height: "100%",
+    flex: 1,
+    marginBottom: 10,
+  },
   container: {
     flex: 1,
     justifyContent: "flex-start",
@@ -74,7 +106,7 @@ const styles = StyleSheet.create({
   picture: {
     width: 50,
     height: 50,
-    borderRadius: 50,
+    borderRadius: 30,
   },
   leftContent: {
     flex: 1,
