@@ -10,6 +10,7 @@ import {
   Switch,
   TextInput,
   TouchableOpacity,
+  Image,
 } from "react-native";
 const { width, height } = Dimensions.get("window");
 import { StatusBar } from "expo-status-bar";
@@ -21,7 +22,9 @@ import { db, getFriends, getNoFriends } from "../commons/firebaseConfig";
 import Modal from "react-native-modal";
 import { GOOGLE_MAPS_API_KEY, USERS_COLLECTION } from "../commons/contants";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
+import { nanoid } from "nanoid";
+import { SvgUri } from "react-native-svg";
 
 const Planisphere = () => {
   const [location, setLocation] = useState(null);
@@ -42,6 +45,8 @@ const Planisphere = () => {
   const [destinationAddress, setDestinationAddress] = useState("");
   const [friendsMode, setFriendsMode] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [originIsFriend, setOriginIsFriend] = useState(false);
 
   function handleDoubleClick() {
     if (!originSelected) {
@@ -109,17 +114,25 @@ const Planisphere = () => {
     async function fetchFriends() {
       const friends = await getFriends();
       setFriends(friends);
+      console.log("fetched setFriends(friends);");
+      setLoading(false);
     }
-    fetchFriends();
-  }, []);
+    if (loading) {
+      fetchFriends();
+    }
+  }, [friends]);
 
   useEffect(() => {
     async function fetchNoFriends() {
       const noFriends = await getNoFriends();
       setNoFriends(noFriends);
+      console.log("fetched  setNoFriends(noFriends);");
+      setLoading(false);
     }
-    fetchNoFriends();
-  }, []);
+    if (loading) {
+      fetchNoFriends();
+    }
+  }, [noFriends]);
 
   const handleFindMyLocation = () => {
     if (location && mapRef) {
@@ -173,28 +186,18 @@ const Planisphere = () => {
     },
   }));
 
-  // async function handleAddFriend() {
-  //   try {
-  //     const userRef = doc(db, USERS_COLLECTION, "user");
-  //     const docSnap = await getDoc(userRef);
-
-  //     await setDoc(userRef, {
-  //       id: user.id,
-  //       name: user.name,
-  //       picture: user.picture,
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-  // Dans le bouton "ajouter en ami"
-
   async function handleAddFriend() {
     try {
-      const userRef = doc(db, "friends", origin.title);
+      // const friendId = nanoid().toString();
+      const friendId = origin.id;
+      const userRef = doc(db, "friends", friendId);
       const docSnap = await getDoc(userRef);
+      setLoading(true);
+      console.log("loading", loading);
+      setOriginIsFriend(true);
 
       await setDoc(userRef, {
+        id: origin.id,
         title: origin.title,
         description: origin.description,
         coords: {
@@ -202,15 +205,65 @@ const Planisphere = () => {
           longitude: origin.longitude,
         },
       });
+
+      const noFriendRef = doc(db, "noFriends", origin.id);
+      await deleteDoc(noFriendRef);
+
+      const updatedNoFriends = noFriends.filter(
+        (noFriend) => noFriend.title !== origin.title
+      );
+
+      const updatedFriends = friends.filter(
+        (friend) => friend.id !== origin.id
+      );
+
+      setNoFriends(updatedNoFriends);
+      setFriends(updatedFriends);
+      setLoading(true);
     } catch (error) {
       console.error(error);
     }
   }
 
-  // const updatedNoFriends = noFriends.filter(
-  //   (noFriend) => noFriend.title !== origin.title
-  // );
-  // setNoFriends(updatedNoFriends);
+  async function handleRemoveFriend() {
+    try {
+      const noFriendId = origin.id;
+      const userRef = doc(db, "noFriends", noFriendId);
+      const docSnap = await getDoc(userRef);
+      setLoading(true);
+      console.log("loading", loading);
+      await setDoc(userRef, {
+        id: origin.id,
+        title: origin.title,
+        description: origin.description,
+        coords: {
+          latitude: origin.latitude,
+          longitude: origin.longitude,
+        },
+      });
+
+      try {
+        const friendRef = doc(db, "friends", noFriendId);
+        await deleteDoc(friendRef);
+      } catch (error) {
+        console.error(error);
+      }
+
+      const updatedNoFriends = noFriends.filter(
+        (noFriend) => noFriend.id !== id
+      );
+
+      const updatedFriends = friends.filter(
+        (friend) => friend.id !== origin.id
+      );
+
+      setFriends(updatedFriends);
+      setNoFriends(updatedNoFriends);
+      setLoading(true);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -266,8 +319,8 @@ const Planisphere = () => {
               title={friend.title}
               description={friend.description}
               onPress={() => {
-                // setSelectedMarker({});
                 setOrigin({
+                  id: friend.id,
                   title: friend.title,
                   description: friend.description,
                   latitude: friend.coords.latitude,
@@ -288,6 +341,7 @@ const Planisphere = () => {
               description={noFriend.description}
               onPress={() =>
                 setOrigin({
+                  id: noFriend.id,
                   title: noFriend.title,
                   description: noFriend.description,
                   latitude: noFriend.coords.latitude,
@@ -481,22 +535,46 @@ const Planisphere = () => {
       <View style={styles.bord}>
         {locationAccepted && (
           <View style={styles.buttonContainer}>
-            <Button
-              color={"#008080"}
-              style={styles.button}
-              title="Find my location"
-              onPress={handleFindMyLocation}
-            />
-            <Button color={"#004040"} title="Unzoom" onPress={handleUnzoom} />
+            <View style={styles.buttonZoom}>
+              <TouchableOpacity onPress={handleFindMyLocation}>
+                <Image
+                  source={{
+                    uri: "https://cdn.discordapp.com/attachments/483349134661779476/1070368697753022564/zoom_in_480px.png",
+                  }}
+                  style={styles.zoomStatus}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleUnzoom}>
+                <Image
+                  source={{
+                    uri: "https://cdn.discordapp.com/attachments/483349134661779476/1070370019088805998/zoom_out_480px.png",
+                  }}
+                  style={styles.zoomStatus}
+                />
+              </TouchableOpacity>
+            </View>
+
             <Text>Distance: {distance} km</Text>
             <Text>Adresse d'arrivée : {destinationAddress}</Text>
+
             {origin && (
-              <Button
-                title="Ajouter en ami"
-                onPress={() => {
-                  handleAddFriend();
-                }}
-              />
+              <View style={styles.actions}>
+                {friends.some((friend) => friend.title === origin.title) ? (
+                  <Button
+                    title="Retirer ami"
+                    onPress={() => {
+                      handleRemoveFriend();
+                    }}
+                  />
+                ) : (
+                  <Button
+                    title="Ajouter ami"
+                    onPress={() => {
+                      handleAddFriend();
+                    }}
+                  />
+                )}
+              </View>
             )}
           </View>
         )}
@@ -506,6 +584,16 @@ const Planisphere = () => {
 };
 
 const styles = StyleSheet.create({
+  zoomStatus: {
+    height: 30,
+    width: 30,
+  },
+  buttonZoom: {
+    backgroundColor: "red",
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+  },
   marker: {
     width: 80,
     height: 80,

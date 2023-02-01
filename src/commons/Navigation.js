@@ -7,7 +7,8 @@ import Settings from "../screens/Settings";
 import Planisphere from "../screens/Planisphere ";
 import { NavigationContainer } from "@react-navigation/native";
 import GoogleAuth from "../screens/GoogleAuth";
-import { View } from "react-native";
+import { Linking, View } from "react-native";
+import linking from "./linking.js";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -55,7 +56,7 @@ const MapTab = () => {
 
 const Navigation = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={Linking}>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen
           name="MapTab"

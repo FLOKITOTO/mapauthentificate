@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   Button,
-  LogBox,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
@@ -17,8 +16,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { addUser, db } from "../commons/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { USERS_COLLECTION } from "../commons/contants";
-// import { UserContext } from "../commons/UserContext";
-// import { createContext } from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 const fakeUser = {
@@ -32,7 +29,6 @@ const GoogleAuth = ({ navigation }) => {
   navigation = useNavigation();
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(fakeUser);
-  const [auth, setAuth] = useState(false);
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "1062703903300-g9berao3p6nk6mqk9g0b72patvka83kk.apps.googleusercontent.com",
