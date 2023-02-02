@@ -1,15 +1,11 @@
-import React, { useContext, useEffect } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import React from "react";
+import { StyleSheet, View, Button } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-import { UserContext } from "../commons/UserContext";
 
 const Home = ({ navigation }) => {
   navigation = useNavigation();
 
-  // const handleLogout = () => {
-  //   setUser(null);
-  // };
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -27,7 +23,6 @@ const Home = ({ navigation }) => {
           navigation.navigate("Login", {
             screen: "Login",
           });
-          // handleLogout;
         }}
       />
     </View>

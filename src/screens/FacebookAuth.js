@@ -31,14 +31,6 @@ export default function FacebookAuth() {
     >
       Facebook
     </Text>
-    // <Button
-    //   title="Facebook Sign-In"
-    //   onPress={() =>
-    //     onFacebookButtonPress().then(() =>
-    //       console.log("Signed in with Facebook!")
-    //     )
-    //   }
-    // />
   );
 }
 const styles = StyleSheet.create({

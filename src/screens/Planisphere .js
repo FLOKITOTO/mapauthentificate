@@ -20,7 +20,7 @@ import MapViewDirections from "react-native-maps-directions";
 import { enableLatestRenderer } from "react-native-maps";
 import { db, getFriends, getNoFriends } from "../commons/firebaseConfig";
 import Modal from "react-native-modal";
-import { GOOGLE_MAPS_API_KEY, USERS_COLLECTION } from "../commons/contants";
+import { GOOGLE_MAPS_API_KEY } from "../commons/contants";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 

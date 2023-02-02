@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   KeyboardAvoidingView,
-  Button,
-  Linking,
 } from "react-native";
 import FacebookAuth from "./FacebookAuth";
 import { StatusBar } from "expo-status-bar";
@@ -18,9 +16,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { SafeAreaView } from "react-native-safe-area-context";
-import SafariView from "react-native-safari-view";
-import { WebView } from "react-native-webview";
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -28,55 +23,8 @@ const Login = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [uri, setURL] = useState("");
 
   navigation = useNavigation();
-
-  // useEffect(() => {
-  //   Linking.addEventListener("url", (url) => handleOpenURL(url.url));
-  //   Linking.getInitialURL().then((url) => {
-  //     if (url) {
-  //       handleOpenURL({ url });
-  //     }
-  //   });
-  //   return () => {
-  //     Linking.removeAllListeners("url");
-  //   };
-  // }, []);
-
-  // const handleOpenURL = (url) => {
-  //   // Extract stringified user string out of the URL
-  //   const user = decodeURI(url).match(
-  //     /firstName=([^#]+)\/lastName=([^#]+)\/email=([^#]+)/
-  //   );
-  //   // 2 - store data in Redux
-  //   const userData = {
-  //     isAuthenticated: true,
-  //     firstName: user[1],
-  //     lastName: user[2],
-  //     //some users on fb may not registered with email but rather with phone
-  //     email: user && user[3] ? user[3] : "NA",
-  //   };
-  //   //redux function
-  //   login(userData);
-  //   if (Platform.OS === "ios") {
-  //     SafariView.dismiss();
-  //   } else {
-  //     setURL("");
-  //   }
-  // };
-
-  // const openUrl = (url) => {
-  //   // // Use SafariView on iOS
-  //   if (Platform.OS === "ios") {
-  //     SafariView.show({
-  //       url,
-  //       fromBottom: true,
-  //     });
-  //   } else {
-  //     setURL(url);
-  //   }
-  // };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
