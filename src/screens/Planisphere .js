@@ -298,7 +298,7 @@ const Planisphere = () => {
             title={"Your location"}
           />
           {destinationMarker && (
-            <r
+            <Marker
               coordinate={destinationMarker}
               pinColor={"green"}
               title={"Destination"}
